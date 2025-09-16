@@ -517,6 +517,7 @@ export default function BieganiePage() {
                   <tbody className="divide-y divide-gray-200">
                     {runnings
                       .filter(hasValidVoivodeship)
+                      .filter(running => typeof running.voivodeship === 'string')
                       .reduce((acc: AggregatedData[], running) => {
                         const existing = acc.find(item => item.name === running.voivodeship);
                         if (existing) {
@@ -525,7 +526,7 @@ export default function BieganiePage() {
                           existing.longestRun = Math.max(existing.longestRun, running.distance);
                         } else {
                           acc.push({
-                            name: running.voivodeship,
+                            name: running.voivodeship ?? '',
                             runs: 1,
                             distance: running.distance,
                             longestRun: running.distance
