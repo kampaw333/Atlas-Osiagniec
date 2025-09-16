@@ -104,7 +104,11 @@ export default function BieganiePage() {
 
   // Function to handle adding new runs
   const handleAddRun = async (runData: RunData) => {
-    setRunnings(prev => [...prev, runData]);
+    const newRun = {
+      ...runData,
+      notes: runData.notes || '', // To jest kluczowa zmiana
+    };
+    setRunnings(prev => [...prev, newRun]);
   };
 
   const countries = [...new Set(runnings.map(r => r.country))];
