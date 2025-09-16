@@ -3,32 +3,8 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Feature, FeatureCollection } from 'geojson';
 
-interface GeoJSONProperties {
-  name_pl: string;
-  name?: string;
-  iso_a2?: string;
-  iso_a3?: string;
-  continent?: string;
-  region?: string;
-  subregion?: string;
-}
-
-interface GeoJSONGeometry {
-  type: 'Point' | 'LineString' | 'Polygon' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon' | 'GeometryCollection';
-  coordinates: number[] | number[][] | number[][][] | number[][][][];
-}
-
-interface GeoJSONFeature {
-  type: 'Feature';
-  properties: GeoJSONProperties;
-  geometry: GeoJSONGeometry;
-}
-
-interface GeoJSONFeatureCollection {
-  type: 'FeatureCollection';
-  features: GeoJSONFeature[];
-}
 
 // GeoJSON data for European countries (simplified)
 const europeGeoJSON = {
@@ -144,7 +120,7 @@ export default function EuropeHeatMap() {
     }).addTo(map);
 
     // Funkcja do stylowania krajów
-    const styleCountry = (feature: GeoJSONFeature | undefined) => {
+    const styleCountry = (feature: Feature | undefined) => {
       // NOWA, KLUCZOWA LINIA:
       if (!feature) {
         return {};
@@ -174,7 +150,7 @@ export default function EuropeHeatMap() {
     };
 
     // Funkcja do obsługi kliknięć
-    const onEachFeature = (feature: GeoJSONFeature, layer: L.Layer) => {
+    const onEachFeature = (feature: Feature, layer: L.Layer) => {
       const countryName = feature.properties.name_pl;
       const heatData = heatMapData[countryName as keyof typeof heatMapData];
       
@@ -191,7 +167,7 @@ export default function EuropeHeatMap() {
     };
 
     // Dodanie GeoJSON warstwy
-    L.geoJSON(europeGeoJSON as GeoJSONFeatureCollection, {
+    L.geoJSON(europeGeoJSON as FeatureCollection, {
       style: styleCountry,
       onEachFeature: onEachFeature
     }).addTo(map);
