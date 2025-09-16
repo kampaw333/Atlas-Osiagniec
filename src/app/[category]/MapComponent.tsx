@@ -3,14 +3,15 @@
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
 
 interface Peak {
-  id: number
+  id: string
   name: string
-  country: string
+  country?: string
+  mountain_range?: string
   height_m: number
-  latitude: number
-  longitude: number
-  isCompleted: boolean
-  completionDate?: string | null
+  latitude?: number
+  longitude?: number
+  isCompleted?: boolean
+  completionDate?: string
 }
 
 interface MapComponentProps {

@@ -2,10 +2,22 @@
 
 import { useState } from 'react';
 
+interface RunData {
+  id: string;
+  city: string;
+  country: string;
+  voivodeship?: string;
+  date: string;
+  distance: number;
+  lat: number;
+  lng: number;
+  notes?: string;
+}
+
 interface AddRunModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddRun: (runData: any) => void;
+  onAddRun: (runData: RunData) => void;
 }
 
 // Hardcoded coordinates for major cities

@@ -6,6 +6,66 @@ import { supabase } from '@/lib/supabase'
 import { getUserStats } from '@/lib/getUserStats'
 import dynamic from 'next/dynamic'
 
+interface Peak {
+  id: string;
+  name: string;
+  country?: string;
+  mountain_range?: string;
+  height_m: number;
+  latitude?: number;
+  longitude?: number;
+  isCompleted?: boolean;
+  completionDate?: string;
+  peak_europe_id?: string;
+  peak_poland_id?: string;
+  category?: string;
+  user_id?: string;
+  notes?: string;
+  date?: string;
+  location?: string;
+  elevation?: number;
+}
+
+interface UserAchievement {
+  id: string;
+  peak_europe_id?: string;
+  peak_poland_id?: string;
+  category: string;
+  completion_date?: string;
+  notes?: string;
+}
+
+interface AchievementFormData {
+  peak_id: string;
+  category: string;
+  completion_date: string;
+  notes?: string;
+  custom_name?: string;
+  location?: string;
+  country?: string;
+  city?: string;
+  date?: string;
+  elevation?: string;
+  distance?: string;
+  time?: string;
+  race_type?: string;
+  place?: string;
+}
+
+interface User {
+  id: string;
+  email?: string;
+  [key: string]: any;
+}
+
+interface AddAchievementModalProps {
+  onClose: () => void;
+  onSubmit: (formData: AchievementFormData) => void;
+  user: User | null;
+  initialCategory?: string;
+  selectedPeak?: Peak;
+}
+
 // Plus icon component
 const PlusIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,9 +97,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   console.log('URL category param:', params)
   console.log('Is user logged in?:', !!user)
   const [category, setCategory] = useState('')
-  const [peaks, setPeaks] = useState<any[]>([])
-  const [peaksWithStatus, setPeaksWithStatus] = useState<any[]>([])
-  const [userAchievements, setUserAchievements] = useState<any[]>([])
+  const [peaks, setPeaks] = useState<Peak[]>([])
+  const [peaksWithStatus, setPeaksWithStatus] = useState<Peak[]>([])
+  const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([])
   const [userStats, setUserStats] = useState({
     korona_europy: 0,
     korona_polski: 0,
@@ -88,7 +148,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     console.log('fetchPeaksWithCategory called with category:', categoryParam)
     console.log('user:', user)
     console.log('user type:', typeof user)
-    console.log('user id:', user ? (user as any).id : 'no user')
+    console.log('user id:', user ? (user as User).id : 'no user')
     
     // CRITICAL: Validate category parameter
     if (!categoryParam || (categoryParam !== 'korona-europy' && categoryParam !== 'korona-polski')) {
@@ -179,7 +239,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
       // Load user achievements if logged in
       if (user) {
-        const userId = (user as any).id
+        const userId = (user as User).id
         console.log('User is logged in, userId:', userId)
         
         // Get user stats
@@ -402,12 +462,12 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   console.log('Peaks without valid coordinates:', peaksWithoutCoords.length)
   console.log('Peaks without coords sample:', peaksWithoutCoords.slice(0, 3).map(p => ({ name: p.name, latitude: p.latitude, longitude: p.longitude })))
 
-  const openAddModal = (peak: any) => {
+  const openAddModal = (peak: Peak) => {
     setSelectedPeak(peak)
     setShowAddModal(true)
   }
 
-  const handleAddAchievement = async (formData: any) => {
+  const handleAddAchievement = async (formData: AchievementFormData) => {
     if (!user) return
 
     try {
@@ -798,7 +858,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 }
 
 // AddAchievementModal Component - Same as dashboard
-function AddAchievementModal({ onClose, onSubmit, user, initialCategory, selectedPeak }: any) {
+function AddAchievementModal({ onClose, onSubmit, user, initialCategory, selectedPeak }: AddAchievementModalProps) {
   const [formData, setFormData] = useState({
     category: initialCategory || '',
     peak_id: '',
@@ -815,9 +875,9 @@ function AddAchievementModal({ onClose, onSubmit, user, initialCategory, selecte
     notes: ''
   })
   const [loading, setLoading] = useState(false)
-  const [peaks, setPeaks] = useState<any[]>([])
+  const [peaks, setPeaks] = useState<Peak[]>([])
   const [loadingPeaks, setLoadingPeaks] = useState(false)
-  const [userAchievements, setUserAchievements] = useState<any[]>([])
+  const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([])
 
   // Set selected peak when provided
   useEffect(() => {
@@ -839,9 +899,16 @@ function AddAchievementModal({ onClose, onSubmit, user, initialCategory, selecte
           const { data: userAchievementsData } = await supabase
             .from('achievements')
             .select('peak_europe_id, peak_poland_id')
-            .eq('user_id', user.id)
+            .eq('user_id', user?.id)
 
-          setUserAchievements(userAchievementsData || [])
+          setUserAchievements((userAchievementsData || []).map((item: any) => ({
+            id: item.id || '',
+            peak_europe_id: item.peak_europe_id,
+            peak_poland_id: item.peak_poland_id,
+            category: formData.category,
+            completion_date: item.completion_date,
+            notes: item.notes
+          })))
 
           const tableName = formData.category === 'korona_europy' ? 'peaks_europe' : 'peaks_poland'
           const { data, error } = await supabase
@@ -867,9 +934,9 @@ function AddAchievementModal({ onClose, onSubmit, user, initialCategory, selecte
     }
 
     fetchPeaks()
-  }, [formData.category, user.id])
+  }, [formData.category, user?.id])
 
-  const handleInputChange = (e: any) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -877,12 +944,15 @@ function AddAchievementModal({ onClose, onSubmit, user, initialCategory, selecte
     }))
   }
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     
     try {
-      await onSubmit(formData)
+      await onSubmit({
+        ...formData,
+        completion_date: formData.date || new Date().toISOString().split('T')[0]
+      })
       onClose()
     } catch (error) {
       console.error('Error submitting achievement:', error)

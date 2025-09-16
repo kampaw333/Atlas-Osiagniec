@@ -4,6 +4,15 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+interface GeoJSONFeature {
+  properties: {
+    name_pl: string;
+    [key: string]: any;
+  };
+  geometry: any;
+  type: string;
+}
+
 // GeoJSON data for European countries (simplified)
 const europeGeoJSON = {
   "type": "FeatureCollection",
@@ -118,7 +127,7 @@ export default function EuropeHeatMap() {
     }).addTo(map);
 
     // Funkcja do stylowania krajów
-    const styleCountry = (feature: any) => {
+    const styleCountry = (feature: GeoJSONFeature) => {
       const countryName = feature.properties.name_pl;
       const heatData = heatMapData[countryName as keyof typeof heatMapData];
       
@@ -143,7 +152,7 @@ export default function EuropeHeatMap() {
     };
 
     // Funkcja do obsługi kliknięć
-    const onEachFeature = (feature: any, layer: L.Layer) => {
+    const onEachFeature = (feature: GeoJSONFeature, layer: L.Layer) => {
       const countryName = feature.properties.name_pl;
       const heatData = heatMapData[countryName as keyof typeof heatMapData];
       

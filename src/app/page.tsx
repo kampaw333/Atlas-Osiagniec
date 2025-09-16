@@ -7,6 +7,25 @@ import { supabase } from '@/lib/supabase'
 import CategoryCard from '@/components/CategoryCard';
 import { categories } from '@/data/achievements';
 
+interface UserAchievement {
+  id: string;
+  peak_europe_id?: string;
+  peak_poland_id?: string;
+  category: string;
+  completion_date?: string;
+  notes?: string;
+  date?: string;
+  user_id?: string;
+  name?: string;
+  location?: string;
+}
+
+interface User {
+  id: string;
+  email?: string;
+  [key: string]: any;
+}
+
 export default function HomePage() {
   const { user, loading } = useAuth()
   const [userStats, setUserStats] = useState({
@@ -16,7 +35,7 @@ export default function HomePage() {
     zawody: 0
   })
   const [statsLoading, setStatsLoading] = useState(false)
-  const [recentAchievements, setRecentAchievements] = useState<any[]>([])
+  const [recentAchievements, setRecentAchievements] = useState<UserAchievement[]>([])
   const [achievementsLoading, setAchievementsLoading] = useState(false)
 
   // Fetch user data when logged in
@@ -36,7 +55,7 @@ export default function HomePage() {
       setStatsLoading(true)
       setAchievementsLoading(true)
       try {
-        const userId = (user as any).id
+        const userId = (user as User).id
         
         // Fetch user stats
         const stats = await getUserStats(userId)
@@ -288,7 +307,7 @@ export default function HomePage() {
               ) : recentAchievements.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {recentAchievements.map((achievement) => {
-                    const getBadgeForCategory = (category: string) => {
+                    const getBadgeForCategory = (category: string | undefined) => {
                       switch (category) {
                         case 'korona_europy':
                           return '/europecrown.png';
@@ -310,7 +329,7 @@ export default function HomePage() {
                     return (
                       <div key={achievement.id} className="flex items-center p-4 bg-white rounded-xl shadow-md hover:shadow-xl transition-all">
                         <img 
-                          src={getBadgeForCategory(achievement.category)}
+                          src={getBadgeForCategory(achievement.category) || '/default-badge.png'}
                           className="w-14 h-14 mr-4 object-contain"
                           alt={`Badge for ${achievement.category}`}
                         />
@@ -319,7 +338,7 @@ export default function HomePage() {
                           <p className="text-gray-600 text-sm">{achievement.location}</p>
                         </div>
                         <div className="text-sm text-gray-500">
-                          {formatDate(achievement.date)}
+                          {achievement.date ? formatDate(achievement.date) : 'Brak daty'}
                         </div>
                       </div>
                     );

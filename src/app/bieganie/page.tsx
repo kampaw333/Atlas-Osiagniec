@@ -2,8 +2,21 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useAuth } from '../providers/AuthProvider';
 import AddRunModal from '@/components/AddRunModal';
+
+interface RunData {
+  id: string;
+  city: string;
+  country: string;
+  voivodeship?: string;
+  date: string;
+  distance: number;
+  lat: number;
+  lng: number;
+  notes?: string;
+}
 
 // Dynamic import dla mapy (SSR compatibility)
 const RunningMap = dynamic(() => import('@/components/RunningMap'), {
@@ -90,7 +103,7 @@ export default function BieganiePage() {
   ]);
 
   // Function to handle adding new runs
-  const handleAddRun = async (runData: any) => {
+  const handleAddRun = async (runData: RunData) => {
     setRunnings(prev => [...prev, runData]);
   };
 
@@ -175,18 +188,18 @@ export default function BieganiePage() {
                   Śledź swoje biegi po świecie i Polsce. Kraje, województwa, miasta - każdy bieg to nowa historia.
                 </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
+              <Link 
                 href="/login" 
                 className="bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors"
               >
                 Zaloguj się
-              </a>
-              <a 
+              </Link>
+              <Link 
                 href="/register" 
                 className="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-gray-900 transition-colors"
               >
                 Zarejestruj się
-              </a>
+              </Link>
               </div>
             </div>
           </section>
@@ -250,12 +263,12 @@ export default function BieganiePage() {
             <p className="text-lg text-gray-600 mb-8 subtitle-outdoor">
               Dołącz do społeczności biegaczy i śledź swoje osiągnięcia na mapie świata
             </p>
-            <a 
+            <Link 
               href="/register" 
               className="bg-orange-500 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-orange-600 hover:-translate-y-1 transition-all duration-200 inline-block"
             >
               Zacznij już dziś
-            </a>
+            </Link>
           </div>
         </section>
       </div>
