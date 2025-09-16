@@ -25,6 +25,11 @@ interface AggregatedData {
   longestRun: number;
 }
 
+// Type guard to ensure voivodeship is defined
+const hasValidVoivodeship = (running: RunData): running is RunData & { voivodeship: string } => {
+  return running.country === 'Polska' && running.voivodeship != null && running.voivodeship !== '';
+};
+
 // Dynamic import dla mapy (SSR compatibility)
 const RunningMap = dynamic(() => import('@/components/RunningMap'), {
   ssr: false,
@@ -511,7 +516,7 @@ export default function BieganiePage() {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {runnings
-                      .filter(running => running.country === 'Polska' && running.voivodeship)
+                      .filter(hasValidVoivodeship)
                       .reduce((acc: AggregatedData[], running) => {
                         const existing = acc.find(item => item.name === running.voivodeship);
                         if (existing) {
