@@ -144,7 +144,12 @@ export default function EuropeHeatMap() {
     }).addTo(map);
 
     // Funkcja do stylowania krajów
-    const styleCountry = (feature: GeoJSONFeature) => {
+    const styleCountry = (feature: GeoJSONFeature | undefined) => {
+      // NOWA, KLUCZOWA LINIA:
+      if (!feature) {
+        return {};
+      }
+      
       const countryName = feature.properties.name_pl;
       const heatData = heatMapData[countryName as keyof typeof heatMapData];
       
