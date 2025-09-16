@@ -4,13 +4,30 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+interface GeoJSONProperties {
+  name_pl: string;
+  name?: string;
+  iso_a2?: string;
+  iso_a3?: string;
+  continent?: string;
+  region?: string;
+  subregion?: string;
+}
+
+interface GeoJSONGeometry {
+  type: 'Point' | 'LineString' | 'Polygon' | 'MultiPoint' | 'MultiLineString' | 'MultiPolygon' | 'GeometryCollection';
+  coordinates: number[] | number[][] | number[][][] | number[][][][];
+}
+
 interface GeoJSONFeature {
-  properties: {
-    name_pl: string;
-    [key: string]: any;
-  };
-  geometry: any;
-  type: string;
+  type: 'Feature';
+  properties: GeoJSONProperties;
+  geometry: GeoJSONGeometry;
+}
+
+interface GeoJSONFeatureCollection {
+  type: 'FeatureCollection';
+  features: GeoJSONFeature[];
 }
 
 // GeoJSON data for European countries (simplified)
@@ -169,7 +186,7 @@ export default function EuropeHeatMap() {
     };
 
     // Dodanie GeoJSON warstwy
-    L.geoJSON(europeGeoJSON as any, {
+    L.geoJSON(europeGeoJSON as GeoJSONFeatureCollection, {
       style: styleCountry,
       onEachFeature: onEachFeature
     }).addTo(map);

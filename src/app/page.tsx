@@ -23,7 +23,10 @@ interface UserAchievement {
 interface User {
   id: string;
   email?: string;
-  [key: string]: any;
+  created_at?: string;
+  updated_at?: string;
+  aud?: string;
+  role?: string;
 }
 
 export default function HomePage() {

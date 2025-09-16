@@ -55,7 +55,20 @@ interface AchievementFormData {
 interface User {
   id: string;
   email?: string;
-  [key: string]: any;
+  created_at?: string;
+  updated_at?: string;
+  aud?: string;
+  role?: string;
+}
+
+interface DatabaseAchievement {
+  id: string;
+  peak_europe_id?: string;
+  peak_poland_id?: string;
+  category: string;
+  completion_date?: string;
+  notes?: string;
+  user_id?: string;
 }
 
 interface AddAchievementModalProps {
@@ -63,7 +76,7 @@ interface AddAchievementModalProps {
   onSubmit: (formData: AchievementFormData) => void;
   user: User | null;
   initialCategory?: string;
-  selectedPeak?: Peak;
+  selectedPeak?: Peak | null;
 }
 
 // Plus icon component
@@ -106,10 +119,10 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     kraje: 0,
     zawody: 0
   })
-  const [highestConqueredPeak, setHighestConqueredPeak] = useState<any>(null)
+  const [highestConqueredPeak, setHighestConqueredPeak] = useState<Peak | null>(null)
   const [dataLoading, setDataLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [selectedPeak, setSelectedPeak] = useState<any>(null)
+  const [selectedPeak, setSelectedPeak] = useState<Peak | null>(null)
   const [sortBy, setSortBy] = useState<'country' | 'height' | 'mountain_range'>('country')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [filter, setFilter] = useState<'all' | 'completed' | 'remaining'>('all')
@@ -471,7 +484,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     if (!user) return
 
     try {
-      const userId = (user as any).id
+      const userId = (user as User).id
       
       // Find the selected peak
       const selectedPeak = peaks.find(p => p.id === formData.peak_id)
@@ -898,14 +911,14 @@ function AddAchievementModal({ onClose, onSubmit, user, initialCategory, selecte
           // Fetch user's already achieved peaks
           const { data: userAchievementsData } = await supabase
             .from('achievements')
-            .select('peak_europe_id, peak_poland_id')
+            .select('id, peak_europe_id, peak_poland_id, category, completion_date, notes, user_id')
             .eq('user_id', user?.id)
 
-          setUserAchievements((userAchievementsData || []).map((item: any) => ({
-            id: item.id || '',
+          setUserAchievements((userAchievementsData as DatabaseAchievement[] || []).map((item: DatabaseAchievement) => ({
+            id: item.id,
             peak_europe_id: item.peak_europe_id,
             peak_poland_id: item.peak_poland_id,
-            category: formData.category,
+            category: item.category,
             completion_date: item.completion_date,
             notes: item.notes
           })))
