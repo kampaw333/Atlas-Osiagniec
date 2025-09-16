@@ -122,7 +122,7 @@ export default function EuropeHeatMap() {
     // Funkcja do stylowania krajów
     const styleCountry = (feature: Feature | undefined) => {
       // NOWA, KLUCZOWA LINIA:
-      if (!feature) {
+      if (!feature || !feature.properties) {
         return {};
       }
       
@@ -151,6 +151,9 @@ export default function EuropeHeatMap() {
 
     // Funkcja do obsługi kliknięć
     const onEachFeature = (feature: Feature, layer: L.Layer) => {
+      if (!feature || !feature.properties) {
+        return; // Zakończ funkcję, jeśli brakuje danych
+      }
       const countryName = feature.properties.name_pl;
       const heatData = heatMapData[countryName as keyof typeof heatMapData];
       
