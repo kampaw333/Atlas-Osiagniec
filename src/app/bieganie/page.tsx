@@ -18,6 +18,13 @@ interface RunData {
   notes?: string;
 }
 
+interface AggregatedData {
+  name: string;
+  runs: number;
+  distance: number;
+  longestRun: number;
+}
+
 // Dynamic import dla mapy (SSR compatibility)
 const RunningMap = dynamic(() => import('@/components/RunningMap'), {
   ssr: false,
@@ -439,7 +446,7 @@ export default function BieganiePage() {
                   <tbody className="divide-y divide-gray-200">
                     {runnings
                       .filter(running => running.country !== 'Polska')
-                      .reduce((acc, running) => {
+                      .reduce((acc: AggregatedData[], running) => {
                         const existing = acc.find(item => item.name === running.country);
                         if (existing) {
                           existing.runs += 1;
@@ -454,7 +461,7 @@ export default function BieganiePage() {
                           });
                         }
                         return acc;
-                      }, [])
+                      }, [] as AggregatedData[])
                       .sort((a, b) => b.distance - a.distance)
                       .map((item, index) => (
                         <tr key={index} className="hover:bg-gray-50 transition-colors">
@@ -505,7 +512,7 @@ export default function BieganiePage() {
                   <tbody className="divide-y divide-gray-200">
                     {runnings
                       .filter(running => running.country === 'Polska' && running.voivodeship)
-                      .reduce((acc, running) => {
+                      .reduce((acc: AggregatedData[], running) => {
                         const existing = acc.find(item => item.name === running.voivodeship);
                         if (existing) {
                           existing.runs += 1;
@@ -520,7 +527,7 @@ export default function BieganiePage() {
                           });
                         }
                         return acc;
-                      }, [])
+                      }, [] as AggregatedData[])
                       .sort((a, b) => b.distance - a.distance)
                       .map((item, index) => (
                         <tr key={index} className="hover:bg-gray-50 transition-colors">
