@@ -26,13 +26,16 @@ export default function MapComponent({ peaks, onAddPeak, category }: MapComponen
   console.log('Completed peaks:', peaks.filter(p => p.isCompleted).length)
   console.log('Sample completed peak:', peaks.find(p => p.isCompleted))
   
+  // Type guard function to check if peak has valid coordinates
+  const hasValidCoordinates = (peak: Peak): peak is Peak & { latitude: number; longitude: number } => {
+    return peak.latitude != null && 
+           peak.longitude != null && 
+           !isNaN(peak.latitude) && 
+           !isNaN(peak.longitude);
+  };
+  
   // Filter peaks with valid coordinates
-  const validPeaks = peaks.filter(peak => 
-    peak.latitude && 
-    peak.longitude && 
-    !isNaN(peak.latitude) && 
-    !isNaN(peak.longitude)
-  )
+  const validPeaks = peaks.filter(hasValidCoordinates)
   
   console.log('Valid peaks with coordinates:', validPeaks.length)
   console.log('Valid completed peaks:', validPeaks.filter(p => p.isCompleted).length)
